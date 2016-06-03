@@ -10,12 +10,13 @@ import Foundation
 
 class PostController {
     
-    //POSTCONTROLLER CLASS will use the NetworkController to fetch data, and will serialize the results into Post objects.
-    //This class will be used by the view controllers to fetch Post objects through completion closures.
-    //**Because you will only use one View Controller, there is no reason to make this controller a shared controller.
+        //POSTCONTROLLER CLASS will use the NetworkController to fetch data, and will serialize the results into Post objects.
+        //This class will be used by the view controllers to fetch Post objects through completion closures.
+        //**Because you will only use one View Controller, there is no reason to make this controller a shared controller.
     
-    static let endpoint = NSURL(string: "https://devmtn-post.firebaseio.com/posts.json")
-    //add static constant endpoint for the PostController to know where to fetch Post objects from
+    static let baseURL = NSURL(string: "https://devmtn-post.firebaseio.com/posts/")
+    static let endpoint = baseURL?.URLByAppendingPathExtension("json")
+        //add static constant endpoint for the PostController to know where to fetch Post objects from
     
     weak var delegate: PostControllerDelegate?
     
@@ -24,7 +25,29 @@ class PostController {
             delegate?.postsUpdated(posts)
         }
     }
-    //posts property that will hold the Post objects that you pull and serialize from the API.
+        //posts property that will hold the Post objects that you pull and serialize from the API.
+    
+    
+        //Add new Post and use the NetworkController to post it to the API.
+    func addPosts(username: String, text: String){
+        let post = Post(username: username, text: text)
+        
+        guard let requestURL = post.endpoint else { fatalError("URL optional is nil")}
+                                                                                                                        //added "body:" ???
+        NetworkController.performRequestForURL(requestURL, httpMethod: .Put, body: post.jsonData) { (data, error) in
+            
+            let responseDataString = NSString(data: data!, encoding: NSUTF8StringEncoding) ?? ""
+            
+            if error != nil {
+                print("Error: \(error)")
+            } else if responseDataString.containsString("error") {
+                print("Error: \(responseDataString)")
+            } else {
+                print("Successfully saved data to endpoint. \nResponse: \(responseDataString)")
+        }
+      //      self.fetchPosts()
+    }
+    
     
     init() {
         fetchPosts()
@@ -37,7 +60,7 @@ class PostController {
         guard let requestURL = PostController.endpoint else { fatalError("Post Endpoint url failed") }
         
         
-        //performRequestforURL: serializing the JSON using NSJsonSerialization
+            //performRequestforURL: serializing the JSON using NSJsonSerialization
         
         NetworkController.performRequestForURL(requestURL, httpMethod: .Get, urlParameters: nil) { (data, error) in
             

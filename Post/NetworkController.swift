@@ -38,8 +38,6 @@ enum HTTPMethod: String {
         }
     }
     
-    
-    
 //FUNC PURPOSE: FETCH WHATEVER DATA IS AT THE URL AND BRING IT DOWN.
 //Set up request, create session we can retrieve things from,
 //Data task is created from session and will actually go to the URL and get that information.
@@ -47,7 +45,7 @@ enum HTTPMethod: String {
 //guard and make sure that data is there- use 'if let completion'
 //dataTask.resume -starting this data task for the first time
 
-    static func performRequestWithURL(url: NSURL, httpMethod: HTTPMethod, urlParameters: [String: String]? = nil, body: NSData? = nil, completion: ((data: NSData?, error: NSError?) -> Void)?) {
+    static func performRequestForURL(url: NSURL, httpMethod: HTTPMethod, urlParameters: [String: String]? = nil, body: NSData? = nil, completion: ((data: NSData?, error: NSError?) -> Void)?) {
         
         let requestURL = urlFromURLParameters(url, urlParameters: urlParameters)
         let request = NSMutableURLRequest(URL: requestURL)
@@ -65,7 +63,6 @@ enum HTTPMethod: String {
         dataTask.resume()
     }
 }
-
 
 
 //***Don't forget PLIST INFO!!!

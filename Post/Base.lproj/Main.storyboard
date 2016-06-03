@@ -28,7 +28,13 @@
                             <outlet property="delegate" destination="9Dp-KI-FxA" id="fBW-eU-svq"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="Fg1-Mm-nA0"/>
+                    <navigationItem key="navigationItem" id="Fg1-Mm-nA0">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="fMV-PU-Cqd">
+                            <connections>
+                                <action selector="addPostTapped:" destination="9Dp-KI-FxA" id="ryz-hg-FL5"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rWw-CY-OXe" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="d0M-6N-GYr">
