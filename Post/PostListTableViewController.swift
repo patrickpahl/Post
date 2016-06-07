@@ -2,7 +2,7 @@
 //  PostListTableViewController.swift
 //  Post
 //
-//  Created by Patrick Pahl on 6/1/16.
+//  Created by Patrick Pahl on 6/6/16.
 //  Copyright © 2016 Patrick Pahl. All rights reserved.
 //
 
@@ -10,124 +10,44 @@ import UIKit
 
 class PostListTableViewController: UITableViewController {
 
-    let postController = PostController()
+    let postController = PostController()                                   ////why?
+    
+    ////UIREFRESHCONTROL: How to?
+    
+    
+    
+    
+    
+    
+    
+    
+    
+//    @IBAction func refreshControlPulled(sender: UIRefreshControl) {
+//        
+//        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+//        
+//        postController.fetchPosts(reset: true) { (newPosts) in
+//            sender.endRefreshing()
+//            
+//            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+//        }
+//    }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableViewAutomaticDimension
         
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true            ////why?
+        
         postController.delegate = self
     }
+    
+    //The length of the text on each Post is variable. Add support for dynamic resizing cells to your tableview so messages are not truncated.
+    
 
-    
-@IBAction func refreshControl(sender: AnyObject) {
-    UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-        
-        postController.fetchPosts({ (newPosts) in
-        sender.endRefreshing()
-        
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-                })
-    }
-    
-    
-    @IBAction func addPostTapped(sender: AnyObject) {
-        
-        presentNewPostAlert()
-    }
-    
-    //MARK: - Alerts
-    
-    func presentNewPostAlert(){
-        
-        let alertController = UIAlertController(title: "New Post", message: nil, preferredStyle: .Alert)
-        
-        var usernameTextField: UITextField?
-        var messageTextField: UITextField?
-        
-        alertController.addTextFieldWithConfigurationHandler { (usernameField) in       //This is a closure. We create usernameField that has access
-            usernameField.placeholder = "Display name"                                  //to usernameTextField, but usernameField only exists in closure
-            usernameTextField = usernameField
-        }
-        
-        alertController.addTextFieldWithConfigurationHandler { (messageField) in
-         messageField.placeholder = "What's up?"
-         messageTextField = messageField
-        }
-        
-        let postAction = UIAlertAction(title: "Post", style: .Default) { (action) in
-            guard let username = usernameTextField?.text where !username.isEmpty,
-                let text = messageTextField?.text where !text.isEmpty else {
-                    
-                    self.presentErrorAlert()
-                    return
-            }
-            self.postController.addPosts(username, text: text)
-        }
-    }
-    
-    
-    
-    
-    
-    
-//    func presentNewPostAlert() {
-//        let alertController = UIAlertController(title: "New Post", message: nil, preferredStyle: .Alert)
-//        
-//        var usernameTextField: UITextField?
-//        var messageTextField: UITextField?
-//        
-//        alertController.addTextFieldWithConfigurationHandler { (usernameField) in
-//            usernameField.placeholder = "Display name"
-//            usernameTextField = usernameField
-//        }
-//        
-//        alertController.addTextFieldWithConfigurationHandler { (messageField) in
-//            
-//            messageField.placeholder = "What's up?"
-//            messageTextField = messageField
-//        }
-//        
-//        let postAction = UIAlertAction(title: "Post", style: .Default) { (action) in
-//            
-//            guard let username = usernameTextField?.text where !username.isEmpty,
-//                let text = messageTextField?.text where !text.isEmpty else {
-//                    
-//                    self.presentErrorAlert()
-//                    return
-//            }
-//            
-//            self.postController.addPost(username, text: text)
-//        }
-//        alertController.addAction(postAction)
-//        
-//        let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-//        alertController.addAction(cancelAction)
-//        
-//        presentViewController(alertController, animated: true, completion: nil)
-//    }
-//-------------------------------
-    
-    
-    
-//    func presentErrorAlert() {
-//        
-//        let alertController = UIAlertController(title: "Uh oh!", message: "You may be missing information or have network connectivity issues. Please try again.", preferredStyle: .Alert)
-//        
-//        let cancelAction = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
-//        
-//        alertController.addAction(cancelAction)
-//        
-//        presentViewController(alertController, animated: true, completion: nil)
-//    }
-//}
-
-    
-    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -141,6 +61,7 @@ class PostListTableViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return postController.posts.count
     }
 
@@ -149,12 +70,14 @@ class PostListTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier("postCell", forIndexPath: indexPath)
 
         let post = postController.posts[indexPath.row]
-        
         cell.textLabel?.text = post.text
         cell.detailTextLabel?.text = "\(indexPath.row) - \(post.username) - \(NSDate(timeIntervalSince1970: post.timestamp))"
 
-         return cell
+        return cell
     }
+    
+
+    
     
 
     /*
@@ -203,12 +126,16 @@ class PostListTableViewController: UITableViewController {
     */
 
 }
-extension PostListTableViewController: PostControllerDelegate {
+
+extension PostListTableViewController: PostControllerDelegate{
     
-    func postsUpdated(posts: [Post]) {
-        
+    func postsUpdated(post: [Post]) {
         tableView.reloadData()
-        
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = false               ////why?
     }
+    
 }
+
+
+
+

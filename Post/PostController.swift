@@ -2,100 +2,79 @@
 //  PostController.swift
 //  Post
 //
-//  Created by Patrick Pahl on 6/1/16.
+//  Created by Patrick Pahl on 6/6/16.
 //  Copyright © 2016 Patrick Pahl. All rights reserved.
 //
 
-import Foundation
+import Foundation               //the API returns a Dictionary with UUID Strings as the keys, and the [String: AnyObject] representation as the value for each key.
 
 class PostController {
     
-        //POSTCONTROLLER CLASS will use the NetworkController to fetch data, and will serialize the results into Post objects.
-        //This class will be used by the view controllers to fetch Post objects through completion closures.
-        //**Because you will only use one View Controller, there is no reason to make this controller a shared controller.
-    
-    static let baseURL = NSURL(string: "https://devmtn-post.firebaseio.com/posts/")
-    static let endpoint = baseURL?.URLByAppendingPathExtension("json")
-        //add static constant endpoint for the PostController to know where to fetch Post objects from
+    static let endpoint = NSURL(string: "https://devmtn-post.firebaseio.com/posts.json")                //Static URL available to other classes
     
     weak var delegate: PostControllerDelegate?
     
-    var posts: [Post] = [] {
-        didSet {
+    var posts: [Post] = [] {                                                                            //Creating an array of posts
+        didSet {                                                                                        //did set only called if value changes
             delegate?.postsUpdated(posts)
         }
     }
-        //posts property that will hold the Post objects that you pull and serialize from the API.
     
     
-        //Add new Post and use the NetworkController to post it to the API.
-    func addPosts(username: String, text: String){
-        let post = Post(username: username, text: text)
-        
-        guard let requestURL = post.endpoint else { fatalError("URL optional is nil")}
-                                                                                                                        //added "body:" ???
-        NetworkController.performRequestForURL(requestURL, httpMethod: .Put, body: post.jsonData) { (data, error) in
-            
-            let responseDataString = NSString(data: data!, encoding: NSUTF8StringEncoding) ?? ""
-            
-            if error != nil {
-                print("Error: \(error)")
-            } else if responseDataString.containsString("error") {
-                print("Error: \(responseDataString)")
-            } else {
-                print("Successfully saved data to endpoint. \nResponse: \(responseDataString)")
-        }
-      //      self.fetchPosts()
-    }
-    
-    
-    init() {
+    init(){                                                                                             //soon as class is loaded, posts loaded
         fetchPosts()
     }
     
-    // MARK: - Request
+    //MARK: - Request
     
-    func fetchPosts(completion: ((newPosts: [Post]) -> Void)? = nil) {
+    func fetchPosts(completion: ((newPosts: [Post]) -> Void)? = nil) {                                //Fetch posts with completion, nil= maybe no posts
         
-        guard let requestURL = PostController.endpoint else { fatalError("Post Endpoint url failed") }
+        guard let requestURL = PostController.endpoint else {fatalError("Post endpoint failed")}      //unwrap URL, else we want it to fail
         
-        
-            //performRequestforURL: serializing the JSON using NSJsonSerialization
-        
-        NetworkController.performRequestForURL(requestURL, httpMethod: .Get, urlParameters: nil) { (data, error) in
+        NetworkController.performRequestForURL(requestURL, httpMethod: .Get, urlParameters: nil) { (data, error) in   //Actually ask NC to get URL on background thread
             
-            let responseDataString = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                                                                                                            //Remember to allow fragments
-            guard let data = data,
-                let postDictionaries = (try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)) as? [String: [String: AnyObject]] else {
-                    
-                    print("Unable to serialize JSON. \nResponse: \(responseDataString)")
-                    if let completion = completion {
-                        completion(newPosts: [])
-                    }
-                    return
+        let responseDataString = NSString(data: data!, encoding: NSUTF8StringEncoding)                  //will only run if theres an error, (optional)
+            
+        guard let data = data,                                                                          //unwrap data first
+        let postDictionaries = (try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)) as? [String: [String: AnyObject]] else {
+                print("Unable to serialize JSON")                                              //Here creating postDictionary to serialize data
+            
+                if let completion = completion {
+                completion(newPosts: [])                                                        //unwrap completion, so we can work with it.
+                }                                                                               //Need to say its an empty array
+                return                                                                          //If gas station is empty then just empty gas can
             }
             
-            let posts = postDictionaries.flatMap({Post(json: $0.1, identifier: $0.0)})
-            let sortedPosts = posts.sort({$0.0.timestamp > $0.1.timestamp})
-            //Use the .sort() function to sort the posts by the timestamp property in reverse chronological order.
+            let posts = postDictionaries.flatMap({Post(json: $0.1, identifier: $0.0)})          //
+            let sortedPosts = posts.sort({$0.0.timestamp > $0.1.timestamp})                     //sort newer posts first
+    
             
-            dispatch_async(dispatch_get_main_queue(), {
-                //use Grand Central Dispatch to force the completion closure to run on the main thread. (Hint: dispatch_async)
-                
+            dispatch_async(dispatch_get_main_queue(), {                                         //init model objects for completion
                 self.posts = sortedPosts
                 
-                if let completion = completion {
+                if let completion = completion{                                                 //This completion is saying task complete, so we can continue
                     completion(newPosts: sortedPosts)
                 }
-                
                 return
             })
         }
     }
+
 }
 
-protocol PostControllerDelegate: class {
-    
-    func postsUpdated(posts: [Post])
+
+protocol PostControllerDelegate: class {                                                        //protocol needs to be bound to a class type
+                                                                                                //allows a delegate to be weak, which helps memory
+    func postsUpdated(post: [Post])
 }
+
+
+
+
+
+
+
+
+
+
+
