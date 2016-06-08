@@ -44,7 +44,19 @@
                             <outlet property="delegate" destination="jJc-10-Zff" id="aqz-fe-fe8"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Title" id="Ln1-wt-5yz"/>
+                    <navigationItem key="navigationItem" title="Title" id="Ln1-wt-5yz">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="2xS-MJ-Zzd">
+                            <connections>
+                                <action selector="addButtonTapped:" destination="jJc-10-Zff" id="l9C-Qg-Ylu"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="ZqT-fS-NFx">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <connections>
+                            <action selector="refreshControlPulled:" destination="jJc-10-Zff" eventType="valueChanged" id="Tk8-Hc-7fV"/>
+                        </connections>
+                    </refreshControl>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rd5-Ye-ZpV" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

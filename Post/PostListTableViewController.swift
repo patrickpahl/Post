@@ -10,28 +10,79 @@ import UIKit
 
 class PostListTableViewController: UITableViewController {
 
-    let postController = PostController()                                   ////why?
+    let postController = PostController()                               ////why?
+   
     
-    ////UIREFRESHCONTROL: How to?
+    @IBAction func addButtonTapped(sender: AnyObject) {
+        presentNewPostAlert()
+    }
+    
+    override func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+       postController.fetchPosts(reset: false) { (newPosts) in                            //func willDisplayCell - fetchPosts
+        
+        if !newPosts.isEmpty{
+            self.tableView.reloadData()
+        }
+    }     ////Check if the indexPath.row of the cell parameter is greater than the number of posts currently loaded on the postController.
+}
+    
+    
+    
+    func presentNewPostAlert(){
+        
+    let alertController = UIAlertController(title: "New Post", message: nil, preferredStyle: .Alert)
+        
+        var usernameTextField: UITextField?                         //Make these optional
+        var messageTextField: UITextField?
+        
+        alertController.addTextFieldWithConfigurationHandler { (usernameField) in
+            
+            usernameField.placeholder = "display username..."
+            usernameTextField = usernameField
+        }
+        
+        alertController.addTextFieldWithConfigurationHandler { (messageField) in
+            
+            messageField.placeholder = "What's up?"
+            messageTextField = messageField
+        }
+        
+        let postAction = UIAlertAction(title: "Post", style: .Default) { (action) in
+            
+            guard let username = usernameTextField?.text where !username.isEmpty,
+            let text = messageTextField?.text where !text.isEmpty else {
+            //    self.presentErrorAlert()
+                return}
+        
+        self.postController.addPost(username, text: text)
+        }
+        
+        
+        alertController.addAction(postAction)
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+            
+        alertController.addAction(cancelAction)
+        
+        presentViewController(alertController, animated: true, completion: nil)
+    }
+        
     
     
     
     
-    
-    
-    
-    
-    
-//    @IBAction func refreshControlPulled(sender: UIRefreshControl) {
-//        
-//        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-//        
-//        postController.fetchPosts(reset: true) { (newPosts) in
-//            sender.endRefreshing()
-//            
-//            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-//        }
-//    }
+    @IBAction func refreshControlPulled(sender: UIRefreshControl) {         //TO ADD THIS: ViewController, Attribute Inspector, Refreshing: Enabled
+                                                                            //Create action: Must of type UIREFRESHCONTROL!!!
+    UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        
+        postController.fetchPosts { (newPosts) in
+        
+        sender.endRefreshing()
+            
+        }
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+    }
     
     
     override func viewDidLoad() {
@@ -40,7 +91,7 @@ class PostListTableViewController: UITableViewController {
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableViewAutomaticDimension
         
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true            ////why?
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true            
         
         postController.delegate = self
     }
@@ -78,8 +129,6 @@ class PostListTableViewController: UITableViewController {
     
 
     
-    
-
     /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
@@ -131,7 +180,7 @@ extension PostListTableViewController: PostControllerDelegate{
     
     func postsUpdated(post: [Post]) {
         tableView.reloadData()
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = false               ////why?
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
     }
     
 }
